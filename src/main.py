@@ -80,8 +80,7 @@ def create_playlist(sp, playlist_name):
     playlist_id = sp.user_playlist_create(sp.current_user()["id"], 
                             playlist_name, 
                             public=True, 
-                            collaborative=False, 
-                            description="Auto-generated playlist created on " + str(datetime.now())
+                            collaborative=False
                             )["id"]
     
     return playlist_id
@@ -100,6 +99,7 @@ def get_track_ids(sp, playlist_tracks):
 def update_playlist(sp, tracks, id):
 
     sp.user_playlist_replace_tracks(sp.current_user()["id"], id, tracks)
+    sp.user_playlist_change_details(sp.current_user()["id"], id, description="Auto-generated playlist updated on " + str(datetime.now()))
 
 
 if __name__ == "__main__":
