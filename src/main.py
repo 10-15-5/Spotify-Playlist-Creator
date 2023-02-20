@@ -40,16 +40,27 @@ config.read(configFilePath, encoding="utf-8")
 
 
 def main():
-    # tracks = get_tracks_from_playlist()
-    # update_playlist(tracks)
-    # update_playlist()
+    file_paths = config.get("CONFIG", "PATHS")
+    file_paths = file_paths.split(",")
 
-    # print(pathlib.Path().resolve())
-    print(config.get("CONFIG", "CLIENT_ID"))
+    for i in file_paths:
+        tracks = get_tracks_from_playlist(i)
+        # update_playlist(tracks)
+        # update_playlist()
 
+        # print(pathlib.Path().resolve())
+        print(config.get("CONFIG", "CLIENT_ID"))
 
+def get_tracks_from_playlist(path_to_file):
+    print(path_to_file)
+    useragent = config.get("CONFIG", "USER_AGENT")
+    parser = M3uParser(timeout=5, useragent=useragent)
+    parser.parse_m3u(path_to_file)
 
+    playlist_list = parser.get_list()
 
+    for i in range(len(playlist_list)):
+        print(playlist_list[i]["name"])
 
 
 if __name__ == "__main__":
