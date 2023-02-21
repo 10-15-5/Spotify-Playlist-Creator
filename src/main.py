@@ -2,6 +2,7 @@ import spotipy
 import logging
 import configparser
 import pathlib
+import os
 
 from datetime import datetime
 from spotipy.oauth2 import SpotifyOAuth
@@ -10,6 +11,9 @@ from m3u_parser import M3uParser
 # ------------------------------------------------------------------
 #   Logging Setup
 # ------------------------------------------------------------------
+
+if not os.path.exists('logs'):
+    os.mkdir('logs')
 
 logger = logging.getLogger("info")
 logger.setLevel(logging.INFO)
@@ -102,5 +106,5 @@ def update_playlist(sp, tracks, id):
     sp.user_playlist_change_details(sp.current_user()["id"], id, description="Auto-generated playlist updated on " + str(datetime.now()))
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
