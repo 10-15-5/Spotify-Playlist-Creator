@@ -2,6 +2,7 @@ import spotipy
 import logging
 import configparser
 import os
+import pycountry
 
 from datetime import datetime
 from spotipy.oauth2 import SpotifyOAuth
@@ -123,7 +124,9 @@ def spotify_interaction(playlist_tracks, playlist_name):
 
 def create_playlist(sp, playlist_name):
     """
-    Creats a Sporify playlist and returns the ID.
+    TODO Check if playlist already exists, if it does get the ID of that playlist
+
+    Creats a Spotify playlist and returns the ID.
 
     Creates a Playlist with the following details:
         - The ID of the current user.
@@ -166,7 +169,7 @@ def get_track_ids(sp, playlist_tracks):
     Searches the track in Spotify with the following details:
         - The name of the track.
         - Limtis the search to 1.
-        TODO As it only return 1 track, the returned track in some cases may be wrong, need to add a check to make sure the correct song is being grabbed.
+        TODO As it only returns 1 track, the returned track in some cases may be wrong, need to add a check to make sure the correct song is being grabbed.
         - Search type is set to tracks.
         - Market is set to the user defined country code in the config.
         TODO Add error handling if user enters wrong/unusable country code.
@@ -183,7 +186,11 @@ def get_track_ids(sp, playlist_tracks):
     """
 
     for i in range(len(playlist_tracks)):
-        track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
+        try:
+            track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
+        except Exception as e:
+            debug.warning(e)
+            country_code_error(sp)
         track_id = track_url.split("/")[-1]
         debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
         
@@ -234,6 +241,41 @@ def update_playlist(sp, tracks, id):
     except Exception as e:
         debug.warning("Error updating description")
         debug.warning("e")
+
+
+def country_code_error(sp):
+    country_codes = sp.country_codes
+    print("THE COUNTRY CODE YOU ENTERED IS INCORRECT OR NOT USABLE")
+    print("Available country codes are as follows:")
+    print(country_codes)
+
+    wrong_code = True
+    while(wrong_code):
+        print("\nPlease enter a valid country code")
+        user_country = input()
+        if user_country.upper() in country_codes:
+            country = pycountry.countries.get(alpha_2=user_country.upper())
+            print(f"You have entered the code of:\t{country.name}")
+            print("Is this correct? [y/n]")
+            user_response = input()
+            if user_response == "y" or user_response == "yes":
+                wrong_code = False
+        else:
+            print("Incorrect country code...")
+
+    with open("settings/config.txt", "r") as config_file:
+        config.read(config_file)
+        config_file.close()
+
+    config.set("CONFIG", "COUNTRY_CODE", user_country.upper())
+
+    with open("settings/config.txt", "w") as config_file:
+        config.write(config_file)
+        config_file.close()
+
+    print("RESTARTING PROGRAM...")
+
+    main()
 
 
 if __name__ == "__main__":
