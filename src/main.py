@@ -1,7 +1,6 @@
 import spotipy
 import logging
 import configparser
-import pathlib
 import os
 
 from datetime import datetime
@@ -20,7 +19,7 @@ logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
 
-file_handler = logging.FileHandler(str(pathlib.Path().resolve()) + r"/logs/logs.log", encoding='utf8')
+file_handler = logging.FileHandler(str(os.getcwd()) + r"/logs/logs.log", encoding='utf8')
 file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
@@ -30,7 +29,7 @@ debug.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S')
 
-file_handler = logging.FileHandler(str(pathlib.Path().resolve()) + r"/logs/debug.log", encoding='utf8')
+file_handler = logging.FileHandler(str(os.getcwd()) + r"/logs/debug.log", encoding='utf8')
 file_handler.setFormatter(formatter)
 
 debug.addHandler(file_handler)
@@ -40,7 +39,7 @@ debug.addHandler(file_handler)
 
 
 config = configparser.RawConfigParser()
-configFilePath = str(pathlib.Path().resolve()) + r"/settings/config.txt"
+configFilePath = str(os.getcwd()) + r"/settings/config.txt"
 config.read(configFilePath, encoding="utf-8")
 
 
