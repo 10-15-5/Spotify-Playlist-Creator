@@ -45,6 +45,8 @@ def main():
     file_paths = config.get("CONFIG", "PATHS")
     file_paths = file_paths.split(",")
 
+    debug.info("***********************************************************************************************")
+    debug.info("Starting Program...")
     debug.info(f"Paths grabbed: {file_paths}")
 
     for i in file_paths:
