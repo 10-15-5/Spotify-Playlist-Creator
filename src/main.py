@@ -202,13 +202,14 @@ def update_playlist(sp, tracks, id):
         - The current user's ID.
         - ID of the playlist.
         - List of track IDs.
-    TODO add arguments for user to append songs to playlist instead of replcing everything. Can use remove_duplicates to removed duplicate tracks.
+    TODO add arguments for user to append songs to playlist instead of replacing everything. Can use remove_duplicates to removed duplicate tracks.
     If an exception occurs, it logs the exception and exits the program.
     Updates the description of the playlist with today's datetime.
         - The current user's ID.
         - ID of the playlist.
         - The description to be added.
     If an exception occurs, it logs the exception.
+    TODO You can add a maximum of 100 tracks per request
 
     Keyword arguments:
     sp -- object -- Spotipy object containing the details to connect to the Spotify app created by the user.
