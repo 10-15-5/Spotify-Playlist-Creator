@@ -29,7 +29,6 @@ config = configparser.RawConfigParser()
 configFilePath = str(os.getcwd()) + r"/settings/config.txt"
 config.read(configFilePath, encoding="utf-8")
 # ------------------------------------------------------------------
-# ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
 #   ArgParser
@@ -58,7 +57,7 @@ def main():
 
     debug.info("***********************************************************************************************")
     debug.info("Starting Program...")
-    debug.info(f"Paths grabbed: {file_paths}")
+    # debug.info(f"Paths grabbed: {file_paths}")
 
     for i in file_paths:
         debug.info(f"Getting tracks from: {i}")
