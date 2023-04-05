@@ -147,10 +147,14 @@ def get_playlist_id(sp, playlist_name):
     playlist_id -- string -- The ID of the playlist.
     """
 
-    results = sp.current_user_playlists(limit=50)
+    results = sp.current_user_playlists()
     for item in results['items']:
         if item["name"] == playlist_name:
             return item["id"]
+    
+    debug.error(f"No playlist found with the name {playlist_name}")
+    debug.error("Exiting Program...")
+    exit()
 
 
 def check_for_duplicates(sp, playlist_id, playlist_track_ids):
