@@ -1,6 +1,6 @@
 # Spotify Playlist Creator
 
-Given an m3u file, this script will create a Spotify playlist with the songs
+Given an m3u file, this script will create a Spotify playlist or update an existing playlist with the songs
 in the file.
 
 
@@ -16,7 +16,8 @@ in the file.
     * ***Client Secret***: Same as above.
     * ***Country Code***: 2 letter code of the country you want to search from (US, GB etc.).
     * ***Paths***: paths to the m3u files, seperate multiple paths with commas.
-4. Run main.py from terminal.
+4. Run `main.py` from terminal.
+    * If you want to update a playlist with the same name as the m3u file, run `main.py -u`
 5. Browser window will popup, when prompted allow the app to create playlists.
 6. You will then be taken to a webpage with an error, copy the URL and open terminal where main.py is running and paste the URL when it asks.
 
