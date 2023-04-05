@@ -2,6 +2,7 @@ import spotipy
 import logging
 import configparser
 import os
+import argparse
 
 from datetime import datetime
 from spotipy.oauth2 import SpotifyOAuth
@@ -30,6 +31,16 @@ config.read(configFilePath, encoding="utf-8")
 # ------------------------------------------------------------------
 # ------------------------------------------------------------------
 
+# ------------------------------------------------------------------
+#   ArgParser
+# ------------------------------------------------------------------
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-u", "--update", action='store_true', help='Update playlist instead of creating a new one')
+args = parser.parse_args()
+update = args.update
+
+# ------------------------------------------------------------------
 
 def main():
     """
@@ -42,19 +53,19 @@ def main():
     None
     """
     
-    file_paths = config.get("CONFIG", "PATHS")
-    file_paths = file_paths.split(",")
+    # file_paths = config.get("CONFIG", "PATHS")
+    # file_paths = file_paths.split(",")
 
-    debug.info("***********************************************************************************************")
-    debug.info("Starting Program...")
-    debug.info(f"Paths grabbed: {file_paths}")
+    # debug.info("***********************************************************************************************")
+    # debug.info("Starting Program...")
+    # debug.info(f"Paths grabbed: {file_paths}")
 
-    for i in file_paths:
-        debug.info(f"Getting tracks from: {i}")
-        tracks = get_tracks_from_playlist(i)
-        playlist_name = i.split("\\")[-1].split(".")[0]
-        debug.info(f"Playlist name: {playlist_name}")
-        spotify_interaction(tracks, playlist_name)
+    # for i in file_paths:
+    #     debug.info(f"Getting tracks from: {i}")
+    #     tracks = get_tracks_from_playlist(i)
+    #     playlist_name = i.split("\\")[-1].split(".")[0]
+    #     debug.info(f"Playlist name: {playlist_name}")
+    #     spotify_interaction(tracks, playlist_name)
 
 
 def get_tracks_from_playlist(path_to_file):
