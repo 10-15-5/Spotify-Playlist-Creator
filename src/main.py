@@ -133,7 +133,7 @@ def spotify_interaction(playlist_tracks, playlist_name):
     else:
         playlist_id = create_playlist(sp, playlist_name)
 
-    update_playlist(sp, playlist_track_ids, playlist_id)
+    # update_playlist(sp, playlist_track_ids, playlist_id)
 
 
 def get_playlist_id(sp, playlist_name):
@@ -144,12 +144,16 @@ def get_playlist_id(sp, playlist_name):
 
 
 def check_for_duplicates(sp, playlist_id, playlist_track_ids):
-    response = sp.playlist_items(playlist_id)["items"]
+    results = sp.user_playlist_tracks(sp.current_user()["id"],playlist_id)
+    tracks = results['items']
+    while results['next']:
+        results = sp.next(results)
+        tracks.extend(results['items'])
 
-    for i in response:
+    for i in tracks:
         if i["track"]["id"] in playlist_track_ids:
             playlist_track_ids.remove(i["track"]["id"])
-
+    
     return playlist_track_ids
 
 
@@ -217,12 +221,12 @@ def get_track_ids(sp, playlist_tracks):
     for i in range(len(playlist_tracks)):
         track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
         track_id = track_url.split("/")[-1]
-        debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
+        # debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
         
         playlist_tracks[i] = track_id
-        debug.info(f"{track_id} added to list of tracks")
+        # debug.info(f"{track_id} added to list of tracks")
 
-    debug.info(f"New list of tracks: {playlist_tracks}")
+    # debug.info(f"New list of tracks: {playlist_tracks}")
     return playlist_tracks
 
 
@@ -256,6 +260,7 @@ def update_playlist(sp, tracks, id):
         try:
             sp.playlist_add_items(id, tracks)
             debug.info("Playlist updated successfully")
+            debug.info(f"{len(tracks)} tracks added")
         except Exception as e:
             debug.error("Error replacing tracks")
             debug.error("e")
@@ -265,6 +270,7 @@ def update_playlist(sp, tracks, id):
         try:
             sp.user_playlist_replace_tracks(sp.current_user()["id"], id, tracks)
             debug.info("Playlist updated successfully")
+            debug.info(f"{len(tracks)} tracks added")
         except Exception as e:
             debug.error("Error replacing tracks")
             debug.error("e")
