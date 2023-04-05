@@ -133,10 +133,21 @@ def spotify_interaction(playlist_tracks, playlist_name):
     else:
         playlist_id = create_playlist(sp, playlist_name)
 
-    # update_playlist(sp, playlist_track_ids, playlist_id)
+    update_playlist(sp, playlist_track_ids, playlist_id)
 
 
 def get_playlist_id(sp, playlist_name):
+    """
+    Gets the playlist id of the named playlist.
+
+    Keyword arguments:
+    sp -- object -- Spotipy object containing the details to connect to the Spotify app created by the user.
+    playlist_name -- string -- The name of the playlist, got from the name of the M3U file.
+
+    Returns:
+    playlist_id -- string -- The ID of the playlist.
+    """
+
     results = sp.current_user_playlists(limit=50)
     for item in results['items']:
         if item["name"] == playlist_name:
@@ -144,6 +155,21 @@ def get_playlist_id(sp, playlist_name):
 
 
 def check_for_duplicates(sp, playlist_id, playlist_track_ids):
+    """
+    Checks for duplicates in the playlist.
+
+    Checks the list of playlist tracks against the list of track IDs gotten from the m3u file.
+    If duplicates are found, the duplicates are removed from the playlist_track_ids list.
+
+    Keyword arguments:
+    sp -- object -- Spotipy object containing the details to connect to the Spotify app created by the user.
+    playlist_id -- string -- The ID of the playlist.
+    playlist_track_ids -- list -- List of track IDs to be added.
+
+    Returns:
+    playlist_track_ids -- list -- Updated list of track IDs to be added.
+    """
+
     results = sp.user_playlist_tracks(sp.current_user()["id"],playlist_id)
     tracks = results['items']
     while results['next']:
@@ -217,6 +243,8 @@ def get_track_ids(sp, playlist_tracks):
     Returns:
     playlist_tracks -- list -- List of track IDs got from Spotify.
     """
+
+    debug.info("Getting Track IDs...")
 
     for i in range(len(playlist_tracks)):
         track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
