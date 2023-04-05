@@ -52,20 +52,20 @@ def main():
     Returns:
     None
     """
-    
-    # file_paths = config.get("CONFIG", "PATHS")
-    # file_paths = file_paths.split(",")
 
-    # debug.info("***********************************************************************************************")
-    # debug.info("Starting Program...")
-    # debug.info(f"Paths grabbed: {file_paths}")
+    file_paths = config.get("CONFIG", "PATHS")
+    file_paths = file_paths.split(",")
 
-    # for i in file_paths:
-    #     debug.info(f"Getting tracks from: {i}")
-    #     tracks = get_tracks_from_playlist(i)
-    #     playlist_name = i.split("\\")[-1].split(".")[0]
-    #     debug.info(f"Playlist name: {playlist_name}")
-    #     spotify_interaction(tracks, playlist_name)
+    debug.info("***********************************************************************************************")
+    debug.info("Starting Program...")
+    debug.info(f"Paths grabbed: {file_paths}")
+
+    for i in file_paths:
+        debug.info(f"Getting tracks from: {i}")
+        tracks = get_tracks_from_playlist(i)
+        playlist_name = i.split("\\")[-1].split(".")[0]
+        debug.info(f"Playlist name: {playlist_name}")
+        spotify_interaction(tracks, playlist_name)
 
 
 def get_tracks_from_playlist(path_to_file):
@@ -125,16 +125,37 @@ def spotify_interaction(playlist_tracks, playlist_name):
         debug.info("Exiting Program...")
         exit()
     
-    playlist_id = create_playlist(sp, playlist_name)
-
     playlist_track_ids = get_track_ids(sp, playlist_tracks)
 
+    if update:
+        playlist_id = get_playlist_id(sp, playlist_name)
+        playlist_track_ids = check_for_duplicates(sp, playlist_id, playlist_track_ids)
+    else:
+        playlist_id = create_playlist(sp, playlist_name)
+
     update_playlist(sp, playlist_track_ids, playlist_id)
-    
+
+
+def get_playlist_id(sp, playlist_name):
+    results = sp.current_user_playlists(limit=50)
+    for item in results['items']:
+        if item["name"] == playlist_name:
+            return item["id"]
+
+
+def check_for_duplicates(sp, playlist_id, playlist_track_ids):
+    response = sp.playlist_items(playlist_id)["items"]
+
+    for i in response:
+        if i["track"]["id"] in playlist_track_ids:
+            playlist_track_ids.remove(i["track"]["id"])
+
+    return playlist_track_ids
+
 
 def create_playlist(sp, playlist_name):
     """
-    Creats a Sporify playlist and returns the ID.
+    Creates a Sporify playlist and returns the ID.
 
     Creates a Playlist with the following details:
         - The ID of the current user.
@@ -231,17 +252,27 @@ def update_playlist(sp, tracks, id):
     None
     """
 
-    try:
-        sp.user_playlist_replace_tracks(sp.current_user()["id"], id, tracks)
-        debug.info("Playlist updated successfully")
-    except Exception as e:
-        debug.error("Error replacing tracks")
-        debug.error("e")
-        debug.info("Exiting Program...")
-        exit()
+    if update:
+        try:
+            sp.playlist_add_items(id, tracks)
+            debug.info("Playlist updated successfully")
+        except Exception as e:
+            debug.error("Error replacing tracks")
+            debug.error("e")
+            debug.info("Exiting Program...")
+            exit()
+    else:
+        try:
+            sp.user_playlist_replace_tracks(sp.current_user()["id"], id, tracks)
+            debug.info("Playlist updated successfully")
+        except Exception as e:
+            debug.error("Error replacing tracks")
+            debug.error("e")
+            debug.info("Exiting Program...")
+            exit()
 
     try:
-        sp.user_playlist_change_details(sp.current_user()["id"], id, description=f"Auto-generated playlist updated on {datetime.now()}")
+        sp.user_playlist_change_details(sp.current_user()["id"], id, description=f"Playlist updated on {datetime.now()}")
         debug.info("Playlist description updated successfully")
     except Exception as e:
         debug.warning("Error updating description")
