@@ -36,8 +36,10 @@ config.read(configFilePath, encoding="utf-8")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-u", "--update", action='store_true', help='Update playlist instead of creating a new one')
+parser.add_argument("-af", "--addFirst", action='store_true', help="Add First song found regardless if correct or not (Not sure why you'd want this)")
 args = parser.parse_args()
 update = args.update
+add_first = args.addFirst
 
 # ------------------------------------------------------------------
 
@@ -248,21 +250,67 @@ def get_track_ids(sp, playlist_tracks):
     """
 
     debug.info("Getting Track IDs...")
+    first = True
 
-    for i in range(len(playlist_tracks)):
-        try:
-            track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
-        except:
-            print(f"Couldn't find track {playlist_tracks[i]}")
-            pass
-        track_id = track_url.split("/")[-1]
-        # debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
+    if(add_first):
+        for i in range(len(playlist_tracks)):
+            try:
+                track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
+            except:
+                print(f"Couldn't find track {playlist_tracks[i]}")
+                pass
+            track_id = track_url.split("/")[-1]
+            # debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
+            
+            playlist_tracks[i] = track_id
+            # debug.info(f"{track_id} added to list of tracks")
+
+    else:
+        if(first):
+            print("\nPLEASE CHOOSE THE NUMBER OF THE SONG YOU WANT TO ADD")
+            first = False
+
+        new_playlist_tracks = []
         
-        playlist_tracks[i] = track_id
-        # debug.info(f"{track_id} added to list of tracks")
+        for i in range(len(playlist_tracks)):
+            og_track = playlist_tracks[i]
+            try:
+                tracks_found = sp.search(playlist_tracks[i],limit=5,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"]
+            except:
+                print(f"Couldn't find track {playlist_tracks[i]}")
+                pass
 
-    # debug.info(f"New list of tracks: {playlist_tracks}")
-    return playlist_tracks
+            songs_to_compare = []
+            for i in tracks_found:
+                featured_artists = ""
+                artists = i["artists"]
+                for j in range(len(artists)):
+                    featured_artists += artists[j]["name"]
+                    if j != len(artists)-1:
+                        featured_artists += ", "
+
+                songs_to_compare.append({"name" : f"{featured_artists} - {i['name']}", "url" : i["external_urls"]["spotify"].split("/")[-1]})
+
+            print("\n")
+            print(f"SONG TITLE:\t{og_track}")
+            for i in range(len(songs_to_compare)):
+                print(f"{i+1}. {songs_to_compare[i]['name']}")
+            print("0. Song Not There!")
+            valid_input = False
+            while(not valid_input):
+                try: 
+                    choice = int(input("Number:\t"))
+                except:
+                    pass
+
+                if(choice < 6 and choice >= 0):
+                    valid_input = True
+
+            if(choice != 0):
+                new_playlist_tracks.append(songs_to_compare[choice]["url"])
+                
+    # debug.info(f"New list of tracks: {new_playlist_tracks}")
+    return new_playlist_tracks
 
 
 def update_playlist(sp, tracks, id):
@@ -298,7 +346,7 @@ def update_playlist(sp, tracks, id):
             debug.info(f"{len(tracks)} tracks added")
         except Exception as e:
             debug.error("Error replacing tracks")
-            debug.error("e")
+            debug.error(e)
             debug.info("Exiting Program...")
             exit()
     else:
