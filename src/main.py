@@ -115,7 +115,7 @@ def spotify_interaction(playlist_tracks, playlist_name):
     try:
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=config.get("CONFIG", "CLIENT_ID"),
                                                 client_secret=config.get("CONFIG", "CLIENT_SECRET"),
-                                                redirect_uri="http://localhost/",
+                                                redirect_uri="http://localhost:8080/",
                                                 scope="playlist-modify-public"))
         debug.info("Spotify connection successful")
     except Exception as e:
@@ -250,7 +250,11 @@ def get_track_ids(sp, playlist_tracks):
     debug.info("Getting Track IDs...")
 
     for i in range(len(playlist_tracks)):
-        track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
+        try:
+            track_url = sp.search(playlist_tracks[i],limit=1,type="track",market=config.get("CONFIG", "COUNTRY_CODE"))["tracks"]["items"][0]["external_urls"]["spotify"]
+        except:
+            print(f"Couldn't find track {playlist_tracks[i]}")
+            pass
         track_id = track_url.split("/")[-1]
         # debug.info(f"Track ID for {playlist_tracks[i]}: {track_id}")
         
