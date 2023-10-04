@@ -295,7 +295,7 @@ def get_track_ids(sp, playlist_tracks):
             print(f"SONG TITLE:\t{og_track}")
             for i in range(len(songs_to_compare)):
                 print(f"{i+1}. {songs_to_compare[i]['name']}")
-            print("0. Song Not There!")
+            print("0. Song Not There! / Skip Song")
             valid_input = False
             while(not valid_input):
                 try: 
@@ -307,7 +307,7 @@ def get_track_ids(sp, playlist_tracks):
                     valid_input = True
 
             if(choice != 0):
-                new_playlist_tracks.append(songs_to_compare[choice]["url"])
+                new_playlist_tracks.append(songs_to_compare[choice-1]["url"])
                 
     # debug.info(f"New list of tracks: {new_playlist_tracks}")
     return new_playlist_tracks
